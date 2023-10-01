@@ -1,8 +1,6 @@
 #include <stdio.h>
 #include <pthread.h>
 
-pthread_t threads[10];
-
 void *thread_func(void *arg){
     for(int i = 0; i < 10; i++) printf("Oi\n");
     return NULL;
@@ -41,16 +39,16 @@ void *thread_func2(void *arg){
 
 int main(int argc, char **argv){
 
-    const int policy = SCHED_RR;
-    sched_param param;
+    pthread_t threads[10];
+    sched_param param1,param2;
 
-    param.sched_priority = 20;
+    param1.sched_priority = 50;
     pthread_create(&(threads[0]),NULL,thread_func,NULL);
-    pthread_setschedparam(threads[0],policy,&param);
+    pthread_setschedparam(threads[0],SCHED_RR,&param1);
     
-    param.sched_priority = 10;
+    param2.sched_priority = 1;
     pthread_create(&(threads[1]),NULL,thread_func2,NULL);
-    pthread_setschedparam(threads[1],policy,&param);
+    pthread_setschedparam(threads[1],SCHED_RR,&param2);
     
     //printf("Thread principal a esperar a terminação das threads criadas \n");
 
