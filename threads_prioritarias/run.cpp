@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <pthread.h>
+#include <time.h>
 
 void *thread_func(void *arg){
     for(int i = 0; i < 10; i++) printf("Oi\n");
@@ -7,16 +8,17 @@ void *thread_func(void *arg){
 }
 
 void *thread_func2(void *arg){
-	int vet[100],ehprimo,i,d;
+	int vet[100],ehprimo,i,d,tamanho_vet;
     //flag de num primo, 0 -> falso e 1 -> verdadeiro
 	ehprimo = 1;
+    tamanho_vet = 50;
 	
     //inicializando vetor com int de 0 a 99
-	for(i = 0; i <100; i++){
+	for(i = 0; i < tamanho_vet; i++){
 		vet[i] = i;
 	}
 	
-	for(i = 0; i <100; i++){
+	for(i = 0; i < tamanho_vet; i++){
         
         //0 e 1 nao sao primos e nem divisiveis por 2
         if (vet[i] <= 1 || vet[i] != 2 && vet[i] % 2 == 0) ehprimo = 0;
@@ -42,19 +44,29 @@ int main(int argc, char **argv){
     pthread_t threads[10];
     sched_param param1,param2;
 
-    param1.sched_priority = 50;
-    pthread_create(&(threads[0]),NULL,thread_func,NULL);
-    pthread_setschedparam(threads[0],SCHED_RR,&param1);
-    
-    param2.sched_priority = 1;
+    // Record the start CPU time
+    clock_t start_time = clock();
+
+    param2.sched_priority = 50;
     pthread_create(&(threads[1]),NULL,thread_func2,NULL);
     pthread_setschedparam(threads[1],SCHED_RR,&param2);
+
+    param1.sched_priority = 1;
+    pthread_create(&(threads[0]),NULL,thread_func,NULL);
+    pthread_setschedparam(threads[0],SCHED_RR,&param1);
     
     //printf("Thread principal a esperar a terminação das threads criadas \n");
 
     //aguardar todas threads 
     pthread_join(threads[0],NULL);
     pthread_join(threads[1],NULL);
+
+    // Record the end CPU time
+    clock_t end_time = clock();
+
+    // Calculate and print the elapsed CPU time in seconds
+    double elapsed_time = (double)(end_time - start_time) / CLOCKS_PER_SEC;
+    printf("Elapsed time: %f seconds\n", elapsed_time);
     
     return 0;
 }
